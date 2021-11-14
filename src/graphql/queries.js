@@ -30,3 +30,32 @@ export const listNotes = /* GraphQL */ `
     }
   }
 `;
+export const getTest = /* GraphQL */ `
+  query GetTest($id: ID!) {
+    getTest(id: $id) {
+      id
+      name
+      memo
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listTests = /* GraphQL */ `
+  query ListTests(
+    $filter: ModelTestFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTests(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        memo
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { API } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { listNotes } from './graphql/queries';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
@@ -15,14 +15,29 @@ function App() {
     fetchNotes();
   }, []);
 
+  Auth.currentSession()
+  .then(user => {
+    const { payload } = user.getIdToken()
+    if (payload && payload['cognito:groups'] ) {
+      console.log(payload['cognito:groups'])
+    }
+  })
+
   async function fetchNotes() {
-    const apiData = await API.graphql({ query: listNotes });
+    const apiData = await API.graphql({ 
+        query: listNotes, 
+        authMode: 'AMAZON_COGNITO_USER_POOLS'
+    });
     setNotes(apiData.data.listNotes.items);
   }
 
   async function createNote() {
     if (!formData.name || !formData.description) return;
-    await API.graphql({ query: createNoteMutation, variables: { input: formData } });
+    await API.graphql({ 
+      query: createNoteMutation, 
+      variables: { input: formData } ,
+      authMode: 'AMAZON_COGNITO_USER_POOLS'
+    });
     setNotes([ ...notes, formData ]);
     setFormData(initialFormState);
   }
